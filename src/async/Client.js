@@ -341,6 +341,10 @@ module.exports = class Client {
       params[APP_ENV] = credentials.appEnv;
     }
 
+    if (credentials.apiToken) {
+      params[API_TOKEN] = credentials.apiToken;
+    }
+
     if (credentials.appId) {
       params[APP_ID] = credentials.appId;
     }
