@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 ### Added
 
+- Added getAppId and getApiToken methods in Client
+
 ### Changed
 
 ### Deprecated
@@ -23,12 +25,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 ### Added
 
 - Prepare capacity to schedule workflows and single tasks (CRON based).
-
-### Changed
-
-### Deprecated
-
-### Removed
 
 ### Fixed
 
