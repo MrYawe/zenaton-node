@@ -1,4 +1,6 @@
 const CronParser = require("cron-parser");
+const Sender = require("../Events/Sender");
+const Listener = require("../Events/Listener");
 
 const Engine = require("../Engine/Engine");
 const { ZenatonError } = require("../../Errors");
@@ -45,6 +47,41 @@ module.exports = class AbstractWorkflow {
     this.scheduling.cron = cron;
 
     return this;
+  }
+
+  id() {
+    return new Engine().getInstanceId();
+  }
+
+  // todo: implement
+  history() {
+    return "to implement";
+  }
+
+  // todo: implement
+  skip() {
+    return "to implement";
+  }
+
+  // todo: implement
+  pause() {
+    return "to implement";
+  }
+
+  // todo: implement
+  terminate() {
+    return "to implement";
+  }
+
+  // todo: improve
+  async send(eventName, eventData) {
+    // eslint-disable-next-line no-return-await
+    return Sender(this.id(), eventName, eventData);
+  }
+
+  // todo: improve
+  async listen(service, filter) {
+    return Listener.subscribe(service, filter).listen();
   }
 
   static methods() {

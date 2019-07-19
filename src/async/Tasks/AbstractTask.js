@@ -47,6 +47,21 @@ module.exports = class AbstractTask {
     return this;
   }
 
+  // todo: implement
+  id() {
+    return null;
+  }
+
+  // todo: implement
+  history() {
+    return null;
+  }
+
+  // todo: implement
+  skip() {
+    return null;
+  }
+
   static methods() {
     return ["handle", "maxProcessingTime"];
   }

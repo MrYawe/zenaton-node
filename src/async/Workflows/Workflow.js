@@ -57,9 +57,18 @@ module.exports = function workflowFunc(name, flow) {
       }
 
       const that = this;
+      const methods = {
+        id: this.id,
+        history: this.history,
+        skip: this.skip,
+        pause: this.pause,
+        terminate: this.terminate,
+        send: this.send,
+        listen: this.listen,
+      };
       // set and bind instance methods
       if (isFn) {
-        this.handle = flow.bind(this.data);
+        this.handle = flow.bind(Object.assign({}, this.data, methods));
       } else {
         Object.keys(flow).forEach((method) => {
           if (method !== "init") {
@@ -73,7 +82,9 @@ module.exports = function workflowFunc(name, flow) {
               that.data[method] = flow[method].bind(that.data);
             } else {
               // zenaton method
-              that[method] = flow[method].bind(that.data);
+              that[method] = flow[method].bind(
+                Object.assign({}, that.data, methods),
+              );
             }
           }
         });
@@ -101,9 +112,9 @@ module.exports = function workflowFunc(name, flow) {
      */
     _getCustomId() {
       let customId = null;
-      if (typeof this.id === "function") {
+      if (typeof this.customId === "function") {
         // customId can be a value or a function
-        customId = this.id();
+        customId = this.customId();
         // customId should be a string or a number
         if (typeof customId !== "string" && typeof customId !== "number") {
           throw new InvalidArgumentError(

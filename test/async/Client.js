@@ -399,4 +399,24 @@ describe("Client", () => {
       },
     );
   });
+
+  it("should return the correct app id", () => {
+    // Act
+    Client.init(FAKE_APP_ID, FAKE_API_TOKEN, FAKE_APP_ENV);
+    const client = new Client();
+    const appId = client.getAppId();
+
+    // Assert
+    expect(appId).to.equal(FAKE_APP_ID);
+  });
+
+  it("should return the correct api token", () => {
+    // Act
+    Client.init(FAKE_APP_ID, FAKE_API_TOKEN, FAKE_APP_ENV);
+    const client = new Client();
+    const apiToken = client.getApiToken();
+
+    // Assert
+    expect(apiToken).to.equal(FAKE_API_TOKEN);
+  });
 });
