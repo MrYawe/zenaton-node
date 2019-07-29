@@ -22,7 +22,7 @@ const dynamicDependencies = require(`./${codePath}`);
 // eslint-disable-next-line import/no-dynamic-require
 const LastClient = require(`./${UP_TO_DATE_CODE_PATH}/Client`);
 
-module.exports = {
+const Dependencies = {
   infos: {
     appVersion: version,
     codePath,
@@ -31,3 +31,7 @@ module.exports = {
   LastClient,
   ...dynamicDependencies,
 };
+
+console.log("HTTP", Dependencies);
+
+module.exports = Dependencies;

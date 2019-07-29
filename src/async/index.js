@@ -4,6 +4,9 @@ const { Task, taskManager, Wait } = require("./Tasks");
 const { Workflow, workflowManager, Version } = require("./Workflows");
 const { serializer } = require("./Services");
 const Parallel = require("./Parallel/Parallel");
+const Http = require("./External/Http");
+
+console.log("HTTP", Http);
 
 // if below functions are already defined, use Parallel class
 
@@ -40,4 +43,5 @@ module.exports = {
   Version,
   serializer,
   Parallel,
+  Http,
 };
