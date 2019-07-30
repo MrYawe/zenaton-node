@@ -1,9 +1,12 @@
 const Client = require("./Client");
 const Engine = require("./Engine/Engine");
-const { Task, taskManager, Wait } = require("./Tasks");
+const { Task, taskManager, Wait: internalWait } = require("./Tasks");
 const { Workflow, workflowManager, Version } = require("./Workflows");
 const { serializer } = require("./Services");
 const Parallel = require("./Parallel/Parallel");
+const { Schedule } = require("./Schedule");
+const { Wait } = require("./Wait");
+const { Execute } = require("./Execute");
 
 // if below functions are already defined, use Parallel class
 
@@ -29,6 +32,8 @@ if (!Array.prototype.execute) {
   };
 }
 
+console.log("WAIT", Wait);
+
 module.exports = {
   Client,
   Engine,
@@ -37,7 +42,10 @@ module.exports = {
   Wait,
   Workflow,
   workflowManager,
+  internalWait,
   Version,
   serializer,
   Parallel,
+  Schedule,
+  Execute,
 };
