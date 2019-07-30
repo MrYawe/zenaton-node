@@ -1,16 +1,18 @@
+const GetTask = require("../External/Get");
+const PostTask = require("../External/Post");
+const AgentTask = require("../External/Agent");
+
 module.exports.Execute = {
-  task: (Task, data) => {
-    if (typeof Task === "string") {
+  job: (Job, data) => {
+    if (typeof Job === "string") {
       // do something
       return null;
     }
-    return new Task(data).execute();
+    return new Job(data).execute();
   },
-  workflow: (Workflow, data) => {
-    if (typeof Workflow === "string") {
-      // do something
-      return null;
-    }
-    return new Workflow(data).dispatch();
-  },
+  post: (action, params, headers) =>
+    new PostTask(action, params, headers).execute(),
+  get: (action, params, headers) =>
+    new GetTask(action, params, headers).execute(),
+  task: (endpoint, params) => AgentTask(endpoint, params),
 };
