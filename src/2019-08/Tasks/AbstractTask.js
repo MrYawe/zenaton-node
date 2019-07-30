@@ -26,6 +26,21 @@ module.exports = class AbstractTask {
     return result[0];
   }
 
+  // todo: implement
+  id() {
+    return null;
+  }
+
+  // todo: implement
+  history() {
+    return null;
+  }
+
+  // todo: implement
+  skip() {
+    return null;
+  }
+
   repeat(cron) {
     if (typeof cron !== "string") {
       throw new ZenatonError(

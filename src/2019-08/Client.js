@@ -347,4 +347,12 @@ module.exports = class Client {
 
     return params;
   }
+
+  getAppId() {
+    return credentials.appId;
+  }
+
+  getApiToken() {
+    return credentials.apiToken;
+  }
 };
