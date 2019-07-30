@@ -9,7 +9,7 @@ module.exports = class QueryBuilder {
   /**
    * Create a new pending job dispatch.
    */
-  whereId(id) {
+  whereCustomId(id) {
     this.id = id;
 
     return this;

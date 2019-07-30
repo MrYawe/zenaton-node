@@ -1,6 +1,7 @@
 const workflowManager = require("./WorkflowManager");
 const AbstractWorkflow = require("./AbstractWorkflow");
 const { ExternalZenatonError, InvalidArgumentError } = require("../../Errors");
+const WorkflowCollection = require("./WorkflowCollection");
 const Builder = require("../Query/Builder");
 
 const MAX_ID_SIZE = 256;
@@ -137,8 +138,8 @@ module.exports = function workflowFunc(name, flow) {
     /**
      * ORM begin
      */
-    static whereId(id) {
-      return new Builder(name).whereId(id);
+    static whereCustomId(id) {
+      return new Builder(name).whereCustomId(id);
     }
 
     /**
@@ -162,3 +163,8 @@ module.exports = function workflowFunc(name, flow) {
 
   return WorkflowClass;
 };
+
+module.exports.all = () => WorkflowCollection();
+module.exports.whereId = (id) => WorkflowCollection({ id });
+module.exports.whereName = (name) => WorkflowCollection({ name });
+module.exports.hasTag = (...tags) => WorkflowCollection({ tags });

@@ -1,6 +1,7 @@
 const AbstractTask = require("./AbstractTask");
 const taskManager = require("./TaskManager");
 const { InvalidArgumentError } = require("../../Errors");
+const TaskCollection = require("./TaskCollection");
 
 module.exports = function taskFunc(name, task) {
   if (typeof name !== "string") {
@@ -131,3 +132,8 @@ module.exports = function taskFunc(name, task) {
 
   return TaskClass;
 };
+
+module.exports.all = () => TaskCollection();
+module.exports.whereId = (id) => TaskCollection({ id });
+module.exports.whereName = (name) => TaskCollection({ name });
+module.exports.hasTag = (...tags) => TaskCollection({ tags });
