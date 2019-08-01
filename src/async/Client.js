@@ -192,34 +192,34 @@ module.exports = class Client {
   /**
    * Kill a workflow instance
    */
-  async killWorkflow(workflowName, customId) {
-    return this.updateInstance(workflowName, customId, WORKFLOW_KILL);
+  async killWorkflow(query) {
+    return this.updateInstance(query.whereName, query.customId, WORKFLOW_KILL);
   }
 
   /**
    * Pause a workflow instance
    */
-  async pauseWorkflow(workflowName, customId) {
-    return this.updateInstance(workflowName, customId, WORKFLOW_PAUSE);
+  async pauseWorkflow(query) {
+    return this.updateInstance(query.whereName, query.customId, WORKFLOW_PAUSE);
   }
 
   /**
    * Resume a workflow instance
    */
-  async resumeWorkflow(workflowName, customId) {
-    return this.updateInstance(workflowName, customId, WORKFLOW_RUN);
+  async resumeWorkflow(query) {
+    return this.updateInstance(query.whereName, query.customId, WORKFLOW_RUN);
   }
 
   /**
    * Find a workflow instance
    */
-  async findWorkflow(workflowName, customId) {
+  async findWorkflow(query) {
     const url = this.getWebsiteUrl("instances");
 
     const params = Object.assign(
       {
-        [ATTR_ID]: customId,
-        [ATTR_NAME]: workflowName,
+        [ATTR_ID]: query.customId,
+        [ATTR_NAME]: query.whereName,
         [ATTR_PROG]: PROG,
         [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
         [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
@@ -231,14 +231,14 @@ module.exports = class Client {
     return http
       .get(url, { params })
       .then((body) =>
-        workflowManager.getWorkflow(workflowName, body.data.properties),
+        workflowManager.getWorkflow(query.whereName, body.data.properties),
       );
   }
 
   /**
    * Send an event to a workflow instance
    */
-  async sendEvent(workflowName, customId, eventName, eventData) {
+  async sendEvent(query, eventName, eventData) {
     const url = this.getWorkerUrlNew("events");
 
     const body = {
@@ -246,8 +246,8 @@ module.exports = class Client {
       [ATTR_PROG]: PROG,
       [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
       [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
-      [ATTR_NAME]: workflowName,
-      [ATTR_ID]: customId,
+      [ATTR_NAME]: query.whereName,
+      [ATTR_ID]: query.customId,
       [EVENT_NAME]: eventName,
       [EVENT_INPUT]: serializer.encode(eventData),
       [EVENT_DATA]: serializer.encode({

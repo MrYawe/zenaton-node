@@ -30,6 +30,15 @@ module.exports = class Engine {
     this.processor = processor;
   }
 
+  async sendEvent(query, eventName, eventData) {
+    // Outside an Agent or Inside an Agent but not in a Decision
+    if (!this.processor || !this.processor.isDeciding) {
+      return this.client.sendEvent(query, eventName, eventData);
+    }
+    // In a decision
+    return this.processor.sendEvent(query, eventName, eventData);
+  }
+
   async execute(jobs) {
     if (!jobs.length) {
       return [];
