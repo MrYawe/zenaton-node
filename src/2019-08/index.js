@@ -7,6 +7,7 @@ const Parallel = require("./Parallel/Parallel");
 const { Schedule } = require("./Schedule");
 const { Wait } = require("./Wait");
 const { Execute } = require("./Execute");
+const { Dispatch } = require("./Dispatch");
 
 // if below functions are already defined, use Parallel class
 
@@ -48,4 +49,5 @@ module.exports = {
   Parallel,
   Schedule,
   Execute,
+  Dispatch,
 };
