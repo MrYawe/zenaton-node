@@ -2,6 +2,7 @@ const Client = require("../Client");
 const InvalidArgumentError = require("../../Errors/InvalidArgumentError");
 const workflowManager = require("../Workflows/WorkflowManager");
 const taskManager = require("../Tasks/TaskManager");
+const { ExternalZenatonError } = require("../../Errors");
 
 let instance = null;
 
@@ -32,11 +33,58 @@ module.exports = class Engine {
 
   async sendEvent(query, eventName, eventData) {
     // Outside an Agent or Inside an Agent but not in a Decision
-    if (!this.processor || !this.processor.isDeciding) {
+    if (!this.processor || !this.processor.microserver.isDeciding) {
       return this.client.sendEvent(query, eventName, eventData);
     }
     // In a decision
+    if (!this.processor.sendEvent) {
+      throw new ExternalZenatonError(
+        "Please update your Agent to be able to send an event from a workflow",
+      );
+    }
     return this.processor.sendEvent(query, eventName, eventData);
+  }
+
+  async killWorkflow(query) {
+    // Outside an Agent or Inside an Agent but not in a Decision
+    if (!this.processor || !this.processor.microserver.isDeciding) {
+      return this.client.killWorkflow(query);
+    }
+    // In a decision
+    if (!this.processor.killWorkflow) {
+      throw new ExternalZenatonError(
+        "Please update your Agent to be able to kill a workflow from a workflow",
+      );
+    }
+    return this.processor.killWorkflow(query);
+  }
+
+  async pauseWorkflow(query) {
+    // Outside an Agent or Inside an Agent but not in a Decision
+    if (!this.processor || !this.processor.microserver.isDeciding) {
+      return this.client.pauseWorkflow(query);
+    }
+    // In a decision
+    if (!this.processor.pauseWorkflow) {
+      throw new ExternalZenatonError(
+        "Please update your Agent to be able to pause a workflow from a workflow",
+      );
+    }
+    return this.processor.pauseWorkflow(query);
+  }
+
+  async resumeWorkflow(query) {
+    // Outside an Agent or Inside an Agent but not in a Decision
+    if (!this.processor || !this.processor.microserver.isDeciding) {
+      return this.client.resumeWorkflow(query);
+    }
+    // In a decision
+    if (!this.processor.resumeWorkflow) {
+      throw new ExternalZenatonError(
+        "Please update your Agent to be able to resume a workflow from a workflow",
+      );
+    }
+    return this.processor.resumeWorkflow(query);
   }
 
   async execute(jobs) {

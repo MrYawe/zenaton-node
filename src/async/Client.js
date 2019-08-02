@@ -193,21 +193,33 @@ module.exports = class Client {
    * Kill a workflow instance
    */
   async killWorkflow(query) {
-    return this.updateInstance(query.whereName, query.customId, WORKFLOW_KILL);
+    return this.updateInstance(
+      query.whereName,
+      query.whereCustomId,
+      WORKFLOW_KILL,
+    );
   }
 
   /**
    * Pause a workflow instance
    */
   async pauseWorkflow(query) {
-    return this.updateInstance(query.whereName, query.customId, WORKFLOW_PAUSE);
+    return this.updateInstance(
+      query.whereName,
+      query.whereCustomId,
+      WORKFLOW_PAUSE,
+    );
   }
 
   /**
    * Resume a workflow instance
    */
   async resumeWorkflow(query) {
-    return this.updateInstance(query.whereName, query.customId, WORKFLOW_RUN);
+    return this.updateInstance(
+      query.whereName,
+      query.whereCustomId,
+      WORKFLOW_RUN,
+    );
   }
 
   /**
@@ -218,7 +230,7 @@ module.exports = class Client {
 
     const params = Object.assign(
       {
-        [ATTR_ID]: query.customId,
+        [ATTR_ID]: query.whereCustomId,
         [ATTR_NAME]: query.whereName,
         [ATTR_PROG]: PROG,
         [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
@@ -247,7 +259,7 @@ module.exports = class Client {
       [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
       [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
       [ATTR_NAME]: query.whereName,
-      [ATTR_ID]: query.customId,
+      [ATTR_ID]: query.whereCustomId,
       [EVENT_NAME]: eventName,
       [EVENT_INPUT]: serializer.encode(eventData),
       [EVENT_DATA]: serializer.encode({
@@ -286,7 +298,7 @@ module.exports = class Client {
     return http.post(url, body, { params });
   }
 
-  async updateInstance(workflowName, customId, mode) {
+  async updateInstance(workflowName, whereCustomId, mode) {
     const url = this.getWorkerUrlNew("instances");
 
     const body = {
@@ -300,7 +312,7 @@ module.exports = class Client {
 
     const params = Object.assign(
       {
-        [ATTR_ID]: customId,
+        [ATTR_ID]: whereCustomId,
       },
       this.getAppEnv(),
     );

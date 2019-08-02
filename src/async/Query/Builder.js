@@ -13,7 +13,7 @@ module.exports = class QueryBuilder {
    * Create a new pending job dispatch.
    */
   whereId(id) {
-    this.query.customId = id;
+    this.query.whereCustomId = id;
 
     return this;
   }
@@ -36,20 +36,20 @@ module.exports = class QueryBuilder {
    * Kill a workflow instance
    */
   async kill() {
-    await this.client.killWorkflow(this.query);
+    return new Engine().killWorkflow(this.query);
   }
 
   /**
    * Pause a workflow instance
    */
   async pause() {
-    await this.client.pauseWorkflow(this.query);
+    return new Engine().pauseWorkflow(this.query);
   }
 
   /**
    * Resume a workflow instance
    */
   async resume() {
-    await this.client.resumeWorkflow(this.query);
+    return new Engine().resumeWorkflow(this.query);
   }
 };
