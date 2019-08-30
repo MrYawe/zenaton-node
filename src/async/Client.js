@@ -1,8 +1,7 @@
 const uuidv4 = require("uuid/v4");
-const workflowManager = require("./Workflows/WorkflowManager");
-const http = require("./Services/Http");
 const graphQL = require("./Services/GraphQL");
 const serializer = require("./Services/Serializer");
+// const workflowManager = require("./Workflows/WorkflowManager");
 const { version } = require("../infos");
 const { init, credentials } = require("../client");
 
@@ -15,10 +14,8 @@ const ZENATON_GATEWAY_URL = "https://gateway.zenaton.com/api";
 
 const APP_ENV = "app_env";
 const APP_ID = "app_id";
-const API_TOKEN = "api_token";
 
 const ATTR_INTENT_ID = "intent_id";
-const ATTR_INSTANCE_ID = "instance_id";
 const ATTR_ID = "custom_id";
 const ATTR_NAME = "name";
 const ATTR_CANONICAL = "canonical_name";
@@ -26,20 +23,11 @@ const ATTR_DATA = "data";
 const ATTR_PROG = "programming_language";
 const ATTR_INITIAL_LIB_VERSION = "initial_library_version";
 const ATTR_CODE_PATH_VERSION = "code_path_version";
-const ATTR_MODE = "mode";
 const ATTR_MAX_PROCESSING_TIME = "maxProcessingTime";
 
 const PROG = "Javascript";
 const INITIAL_LIB_VERSION = version;
 const CODE_PATH_VERSION = "async";
-
-const EVENT_INPUT = "event_input";
-const EVENT_NAME = "event_name";
-const EVENT_DATA = "event_data";
-
-const WORKFLOW_KILL = "kill";
-const WORKFLOW_PAUSE = "pause";
-const WORKFLOW_RUN = "run";
 
 let instance;
 
@@ -135,14 +123,25 @@ module.exports = class Client {
   }
 
   async startInstantTask(task) {
-    const url = this.getWorkerUrlNew("tasks");
-
-    // start task
+    const endpoint = this.getGatewayUrl();
     const body = this.getBodyForTask(task);
+    const mutation = graphQL.mutations.dispatchTask;
 
-    const params = this.getAppEnv();
+    const variables = {
+      dispatchTaskInput: {
+        intentId: body[ATTR_INTENT_ID],
+        environmentName: credentials.appEnv,
+        name: body[ATTR_NAME],
+        programmingLanguage: body[ATTR_PROG].toUpperCase(),
+        maxProcessingTime: body[ATTR_MAX_PROCESSING_TIME],
+        data: body[ATTR_DATA],
+        codePathVersion: body[ATTR_CODE_PATH_VERSION],
+        initialLibraryVersion: body[ATTR_INITIAL_LIB_VERSION],
+      },
+    };
 
-    return http.post(url, body, { params });
+    const res = await graphQL.request(endpoint, mutation, variables);
+    return res.dispatchTask;
   }
 
   async startScheduledTask(task) {
@@ -178,14 +177,26 @@ module.exports = class Client {
   }
 
   async startInstantWorkflow(flow) {
-    const url = this.getWorkerUrlNew("instances");
-
-    // start workflow
+    const endpoint = this.getGatewayUrl();
     const body = this.getBodyForWorkflow(flow);
+    const mutation = graphQL.mutations.dispatchWorkflow;
+    const variables = {
+      dispatchWorkflowInput: {
+        intentId: body[ATTR_INTENT_ID],
+        environmentName: credentials.appEnv,
+        name: body[ATTR_NAME],
+        customId: body[ATTR_ID],
+        canonicalName: body[ATTR_CANONICAL] || body[ATTR_NAME],
+        programmingLanguage: body[ATTR_PROG].toUpperCase(),
+        data: body[ATTR_DATA],
+        codePathVersion: body[ATTR_CODE_PATH_VERSION],
+        initialLibraryVersion: body[ATTR_INITIAL_LIB_VERSION],
+      },
+    };
 
-    const params = this.getAppEnv();
-
-    return http.post(url, body, { params });
+    const res = await graphQL.request(endpoint, mutation, variables);
+    console.log("RESPONSE ALFRED", res);
+    return res.dispatchWorkflow;
   }
 
   async startScheduledWorkflow(flow) {
@@ -214,119 +225,142 @@ module.exports = class Client {
    * Kill a workflow instance
    */
   async killWorkflow(workflowName, customId) {
-    return this.updateInstance(workflowName, customId, WORKFLOW_KILL);
+    const endpoint = this.getGatewayUrl();
+    const body = this.getBodyForUpdateWorkflow(workflowName);
+    const mutation = graphQL.mutations.killWorkflow;
+    const variables = {
+      killWorkflowInput: {
+        customId,
+        environmentName: credentials.appEnv,
+        intentId: body[ATTR_INTENT_ID],
+        name: body[ATTR_NAME],
+        programmingLanguage: body[ATTR_PROG].toUpperCase(),
+      },
+    };
+
+    const res = await graphQL.request(endpoint, mutation, variables);
+    return res.killWorkflow;
   }
 
   /**
    * Pause a workflow instance
    */
   async pauseWorkflow(workflowName, customId) {
-    return this.updateInstance(workflowName, customId, WORKFLOW_PAUSE);
+    const endpoint = this.getGatewayUrl();
+    const body = this.getBodyForUpdateWorkflow(workflowName);
+    const mutation = graphQL.mutations.pauseWorkflow;
+    const variables = {
+      pauseWorkflowInput: {
+        customId,
+        environmentName: credentials.appEnv,
+        intentId: body[ATTR_INTENT_ID],
+        name: body[ATTR_NAME],
+        programmingLanguage: body[ATTR_PROG].toUpperCase(),
+      },
+    };
+
+    const res = await graphQL.request(endpoint, mutation, variables);
+    return res.pauseWorkflow;
   }
 
   /**
    * Resume a workflow instance
    */
   async resumeWorkflow(workflowName, customId) {
-    return this.updateInstance(workflowName, customId, WORKFLOW_RUN);
+    const endpoint = this.getGatewayUrl();
+    const body = this.getBodyForUpdateWorkflow(workflowName);
+    const mutation = graphQL.mutations.resumeWorkflow;
+    const variables = {
+      resumeWorkflowInput: {
+        customId,
+        environmentName: credentials.appEnv,
+        intentId: body[ATTR_INTENT_ID],
+        name: body[ATTR_NAME],
+        programmingLanguage: body[ATTR_PROG].toUpperCase(),
+      },
+    };
+
+    const res = await graphQL.request(endpoint, mutation, variables);
+    return res.resumeWorkflow;
   }
 
   /**
    * Find a workflow instance
    */
   async findWorkflow(workflowName, customId) {
-    const url = this.getWebsiteUrl("instances");
+    const endpoint = this.getGatewayUrl();
+    const query = graphQL.queries.workflow;
+    const variables = {
+      customId,
+      environmentName: credentials.appEnv,
+      workflowName,
+      programmingLanguage: PROG.toUpperCase(),
+    };
 
-    const params = Object.assign(
-      {
-        [ATTR_ID]: customId,
-        [ATTR_NAME]: workflowName,
-        [ATTR_PROG]: PROG,
-        [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
-        [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
-        [API_TOKEN]: credentials.apiToken,
-      },
-      this.getAppEnv(),
-    );
-
-    return http
-      .get(url, { params })
-      .then((body) =>
-        workflowManager.getWorkflow(workflowName, body.data.properties),
-      );
+    const res = await graphQL.request(endpoint, query, variables);
+    return res.workflow;
   }
 
   /**
    * Send an event to a workflow instance
    */
   async sendEvent(workflowName, customId, eventName, eventData) {
-    const url = this.getWorkerUrlNew("events");
+    const endpoint = this.getGatewayUrl();
 
-    const body = {
-      [ATTR_INTENT_ID]: uuidv4(),
-      [ATTR_PROG]: PROG,
-      [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
-      [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
-      [ATTR_NAME]: workflowName,
-      [ATTR_ID]: customId,
-      [EVENT_NAME]: eventName,
-      [EVENT_INPUT]: serializer.encode(eventData),
-      [EVENT_DATA]: serializer.encode({
+    const mutation = graphQL.mutations.sendEventToWorkflowByNameAndCustomId;
+    const variables = {
+      sendEventToWorkflowByNameAndCustomIdInput: {
+        codePathVersion: CODE_PATH_VERSION,
+        customId,
+        data: serializer.encode({
+          name: eventName,
+          data: eventData,
+        }),
+        environmentName: credentials.appEnv,
+        initialLibraryVersion: INITIAL_LIB_VERSION,
+        input: serializer.encode(eventData),
+        intentId: uuidv4(),
         name: eventName,
-        data: eventData,
-      }),
+        programmingLanguage: PROG.toUpperCase(),
+        workflowName,
+      },
     };
 
-    const params = this.getAppEnv();
-
-    return http.post(url, body, { params });
+    const res = await graphQL.request(endpoint, mutation, variables);
+    return res.sendEventToWorkflowByNameAndCustomId;
   }
 
   /**
    * * Send an event to a workflow by instance_id
    */
-  async sendEventByInstanceId(instanceId, eventName, eventData) {
-    const url = this.getWorkerUrlNew("events");
+  async sendEventByInstanceId(id, eventName, eventData) {
+    const endpoint = this.getGatewayUrl();
 
-    const body = {
-      [ATTR_INTENT_ID]: uuidv4(),
-      [ATTR_PROG]: PROG,
-      [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
-      [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
-      [ATTR_INSTANCE_ID]: instanceId,
-      [EVENT_NAME]: eventName,
-      [EVENT_INPUT]: serializer.encode(eventData),
-      [EVENT_DATA]: serializer.encode({
-        name: eventName,
-        data: eventData,
-      }),
+    const mutation = graphQL.mutations.sendEventToWorkflowById;
+    const variables = {
+      sendEventToWorkflowByIdInput: {
+        id,
+        eventName,
+        eventInput: serializer.encode(eventData),
+        eventData: serializer.encode({
+          name: eventName,
+          data: eventData,
+        }),
+      },
     };
 
-    const params = this.getAppEnv();
-
-    return http.post(url, body, { params });
+    const res = await graphQL.request(endpoint, mutation, variables);
+    return res.sendEventToWorkflowById;
   }
 
-  async updateInstance(workflowName, customId, mode) {
-    const url = this.getWorkerUrlNew("instances");
-
-    const body = {
+  getBodyForUpdateWorkflow(workflowName) {
+    return {
       [ATTR_INTENT_ID]: uuidv4(),
       [ATTR_PROG]: PROG,
       [ATTR_INITIAL_LIB_VERSION]: INITIAL_LIB_VERSION,
       [ATTR_CODE_PATH_VERSION]: CODE_PATH_VERSION,
       [ATTR_NAME]: workflowName,
-      [ATTR_MODE]: mode,
     };
-
-    const params = Object.assign(
-      {
-        [ATTR_ID]: customId,
-      },
-      this.getAppEnv(),
-    );
-
-    return http.put(url, body, { params });
   }
 
   mustBeScheduled(job) {

@@ -47,6 +47,61 @@ async function request(endpoint, query, variables) {
 }
 
 const mutations = {
+  dispatchTask: `
+    mutation ($dispatchTaskInput: DispatchTaskInput!) {
+      dispatchTask(input: $dispatchTaskInput) {
+        task {
+          intentId
+        }
+      }
+  }`,
+  dispatchWorkflow: `
+    mutation ($dispatchWorkflowInput: DispatchWorkflowInput!) {
+      dispatchWorkflow(input: $dispatchWorkflowInput) {
+        workflow {
+          id
+          canonicalName
+          environmentId
+          name
+          programmingLanguage
+          properties
+        }
+      }
+  }`,
+  killWorkflow: `
+    mutation ($killWorkflowInput: KillWorkflowInput!) {
+      killWorkflow(input: $killWorkflowInput) {
+        id
+      }
+  }`,
+  pauseWorkflow: `
+    mutation ($pauseWorkflowInput: PauseWorkflowInput!) {
+      pauseWorkflow(input: $pauseWorkflowInput) {
+        id
+      }
+  }`,
+  resumeWorkflow: `
+    mutation ($resumeWorkflowInput: ResumeWorkflowInput!) {
+      resumeWorkflow(input: $resumeWorkflowInput) {
+        id
+      }
+  }`,
+  sendEventToWorkflowByNameAndCustomId: `
+    mutation ($sendEventToWorkflowByNameAndCustomIdInput: SendEventToWorkflowByNameAndCustomIdInput!) {
+      sendEventToWorkflowByNameAndCustomId(input: $sendEventToWorkflowByNameAndCustomIdInput) {
+        event {
+          intentId
+        }
+      }
+  }`,
+  sendEventToWorkflowById: `
+    mutation ($sendEventToWorkflowByIdInput: SendEventToWorkflowByIdInput!) {
+      sendEventToWorkflowById(input: $sendEventToWorkflowByIdInput) {
+        event {
+          intentId
+        }
+      }
+  }`,
   createWorkflowSchedule: `
     mutation ($createWorkflowScheduleInput: CreateWorkflowScheduleInput!) {
       createWorkflowSchedule(input: $createWorkflowScheduleInput) {
@@ -94,5 +149,16 @@ const mutations = {
     }`,
 };
 
+const queries = {
+  workflow: `
+    query workflow($workflowName: String, $customId: ID, $environmentName: String, $programmingLanguage: String) {
+      workflow(environmentName: $environmentName, programmingLanguage: $programmingLanguage, customId: $customId, name: $workflowName) {
+        name
+        properties
+      }
+    }`,
+};
+
 module.exports.request = request;
 module.exports.mutations = mutations;
+module.exports.queries = queries;
