@@ -1,7 +1,6 @@
 const uuidv4 = require("uuid/v4");
 const graphQL = require("./Services/GraphQL");
 const serializer = require("./Services/Serializer");
-// const workflowManager = require("./Workflows/WorkflowManager");
 const { version } = require("../infos");
 const { init, credentials } = require("../client");
 
