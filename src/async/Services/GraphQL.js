@@ -61,7 +61,6 @@ const mutations = {
         workflow {
           id
           canonicalName
-          environmentId
           name
           programmingLanguage
           properties

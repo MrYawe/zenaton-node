@@ -195,7 +195,6 @@ module.exports = class Client {
     };
 
     const res = await graphQL.request(endpoint, mutation, variables);
-    console.log("RESPONSE ALFRED", res);
     return res.dispatchWorkflow;
   }
 
