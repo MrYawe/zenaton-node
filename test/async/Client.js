@@ -71,19 +71,22 @@ describe("Client", () => {
 
     expect(serializer.encode).to.have.been.calledWithExactly("WHATEVER");
 
-    expect(http.post).to.have.been.calledWithExactly(
-      "http://localhost:4001/api/v_newton/instances",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.mutations.dispatchWorkflow,
       {
-        canonical_name: "CanonicalWorkflowName",
-        code_path_version: "async",
-        custom_id: "FAKE CUSTOM ID",
-        data: FAKE_ENCODED_DATA,
-        initial_library_version: FAKE_APP_VERSION,
-        name: "WorkflowVersionName",
-        programming_language: "Javascript",
-        intent_id: "statically-generated-intent-id",
+        dispatchWorkflowInput: {
+          intentId: "statically-generated-intent-id",
+          environmentName: "prod",
+          name: "WorkflowVersionName",
+          customId: "FAKE CUSTOM ID",
+          canonicalName: "CanonicalWorkflowName",
+          programmingLanguage: "JAVASCRIPT",
+          data: FAKE_ENCODED_DATA,
+          codePathVersion: "async",
+          initialLibraryVersion: FAKE_APP_VERSION,
+        },
       },
-      { params: { app_env: FAKE_APP_ENV, app_id: FAKE_APP_ID } },
     );
   });
 
@@ -147,18 +150,21 @@ describe("Client", () => {
 
     expect(serializer.encode).to.have.been.calledWithExactly("WHATEVER");
 
-    expect(http.post).to.have.been.calledWithExactly(
-      "http://localhost:4001/api/v_newton/tasks",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.mutations.dispatchTask,
       {
-        code_path_version: "async",
-        data: FAKE_ENCODED_DATA,
-        initial_library_version: FAKE_APP_VERSION,
-        maxProcessingTime: 1000,
-        name: "TaskName",
-        programming_language: "Javascript",
-        intent_id: "statically-generated-intent-id",
+        dispatchTaskInput: {
+          intentId: "statically-generated-intent-id",
+          environmentName: "prod",
+          name: "TaskName",
+          programmingLanguage: "JAVASCRIPT",
+          maxProcessingTime: 1000,
+          data: FAKE_ENCODED_DATA,
+          codePathVersion: "async",
+          initialLibraryVersion: FAKE_APP_VERSION,
+        },
       },
-      { params: { app_env: FAKE_APP_ENV, app_id: FAKE_APP_ID } },
     );
   });
 
@@ -214,21 +220,16 @@ describe("Client", () => {
     // Assert
     await expect(result).to.eventually.be.fulfilled();
 
-    expect(http.put).to.have.been.calledWithExactly(
-      "http://localhost:4001/api/v_newton/instances",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.mutations.killWorkflow,
       {
-        code_path_version: "async",
-        initial_library_version: FAKE_APP_VERSION,
-        mode: "kill",
-        name: "CanonicalWorkflowName",
-        programming_language: "Javascript",
-        intent_id: "statically-generated-intent-id",
-      },
-      {
-        params: {
-          app_env: FAKE_APP_ENV,
-          app_id: FAKE_APP_ID,
-          custom_id: customId,
+        killWorkflowInput: {
+          customId,
+          environmentName: "prod",
+          intentId: "statically-generated-intent-id",
+          name: "CanonicalWorkflowName",
+          programmingLanguage: "JAVASCRIPT",
         },
       },
     );
@@ -247,21 +248,16 @@ describe("Client", () => {
     // Assert
     await expect(result).to.eventually.be.fulfilled();
 
-    expect(http.put).to.have.been.calledWithExactly(
-      "http://localhost:4001/api/v_newton/instances",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.mutations.pauseWorkflow,
       {
-        code_path_version: "async",
-        initial_library_version: FAKE_APP_VERSION,
-        mode: "pause",
-        name: "CanonicalWorkflowName",
-        programming_language: "Javascript",
-        intent_id: "statically-generated-intent-id",
-      },
-      {
-        params: {
-          app_env: FAKE_APP_ENV,
-          app_id: FAKE_APP_ID,
-          custom_id: customId,
+        pauseWorkflowInput: {
+          customId,
+          environmentName: "prod",
+          intentId: "statically-generated-intent-id",
+          name: "CanonicalWorkflowName",
+          programmingLanguage: "JAVASCRIPT",
         },
       },
     );
@@ -280,21 +276,16 @@ describe("Client", () => {
     // Assert
     await expect(result).to.eventually.be.fulfilled();
 
-    expect(http.put).to.have.been.calledWithExactly(
-      "http://localhost:4001/api/v_newton/instances",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.mutations.resumeWorkflow,
       {
-        code_path_version: "async",
-        initial_library_version: FAKE_APP_VERSION,
-        mode: "run",
-        name: "CanonicalWorkflowName",
-        programming_language: "Javascript",
-        intent_id: "statically-generated-intent-id",
-      },
-      {
-        params: {
-          app_env: FAKE_APP_ENV,
-          app_id: FAKE_APP_ID,
-          custom_id: customId,
+        resumeWorkflowInput: {
+          customId,
+          environmentName: "prod",
+          intentId: "statically-generated-intent-id",
+          name: "CanonicalWorkflowName",
+          programmingLanguage: "JAVASCRIPT",
         },
       },
     );
@@ -304,13 +295,6 @@ describe("Client", () => {
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";
-
-    sinon.stub(http, "get").resolves({
-      data: {
-        properties: "FAKE PROPERTIES",
-      },
-    });
-
     const fakeFoundWorkflow = {};
     sinon.stub(workflowManager, "getWorkflow").returns(fakeFoundWorkflow);
 
@@ -318,31 +302,19 @@ describe("Client", () => {
     Client.init(FAKE_APP_ID, FAKE_API_TOKEN, FAKE_APP_ENV);
     const client = new Client();
     const result = client.findWorkflow(workflowName, customId);
-
+    console.log("RESULT", result);
     // Assert
-    await expect(result)
-      .to.eventually.be.fulfilled()
-      .and.to.equal(fakeFoundWorkflow);
+    await expect(result).to.eventually.be.fulfilled();
 
-    expect(http.get).to.have.been.calledWithExactly(
-      "https://api.zenaton.com/v1/instances",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.queries.workflow,
       {
-        params: {
-          code_path_version: "async",
-          initial_library_version: FAKE_APP_VERSION,
-          name: "CanonicalWorkflowName",
-          programming_language: "Javascript",
-          api_token: FAKE_API_TOKEN,
-          app_env: FAKE_APP_ENV,
-          app_id: FAKE_APP_ID,
-          custom_id: customId,
-        },
+        customId: "45745c60",
+        environmentName: "prod",
+        workflowName: "CanonicalWorkflowName",
+        programmingLanguage: "JAVASCRIPT",
       },
-    );
-
-    expect(workflowManager.getWorkflow).to.have.been.calledWithExactly(
-      "CanonicalWorkflowName",
-      "FAKE PROPERTIES",
     );
   });
 
@@ -383,23 +355,21 @@ describe("Client", () => {
       })
       .and.to.have.been.calledWithExactly("WHATEVER");
 
-    expect(http.post).to.have.been.calledWithExactly(
-      "http://localhost:4001/api/v_newton/events",
+    expect(graphQL.request).to.have.been.calledWithExactly(
+      "https://gateway.zenaton.com/api",
+      graphQL.mutations.sendEventToWorkflowByNameAndCustomId,
       {
-        code_path_version: "async",
-        initial_library_version: FAKE_APP_VERSION,
-        name: "CanonicalWorkflowName",
-        programming_language: "Javascript",
-        custom_id: customId,
-        event_data: FAKE_ENCODED_DATA,
-        event_input: FAKE_ENCODED_DATA,
-        event_name: "MyEvent",
-        intent_id: "statically-generated-intent-id",
-      },
-      {
-        params: {
-          app_env: FAKE_APP_ENV,
-          app_id: FAKE_APP_ID,
+        sendEventToWorkflowByNameAndCustomIdInput: {
+          codePathVersion: "async",
+          customId,
+          data: FAKE_ENCODED_DATA,
+          environmentName: "prod",
+          initialLibraryVersion: "0.0.0",
+          input: FAKE_ENCODED_DATA,
+          intentId: "statically-generated-intent-id",
+          name: "MyEvent",
+          programmingLanguage: "JAVASCRIPT",
+          workflowName: "CanonicalWorkflowName",
         },
       },
     );

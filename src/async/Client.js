@@ -296,7 +296,7 @@ module.exports = class Client {
     };
 
     const res = await graphQL.request(endpoint, query, variables);
-    return res.workflow;
+    return res.data;
   }
 
   /**
@@ -323,7 +323,6 @@ module.exports = class Client {
         workflowName,
       },
     };
-
     const res = await graphQL.request(endpoint, mutation, variables);
     return res.sendEventToWorkflowByNameAndCustomId;
   }
