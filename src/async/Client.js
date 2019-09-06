@@ -1,3 +1,5 @@
+/* eslint prefer-object-spread: 0 */
+
 const uuidv4 = require("uuid/v4");
 const graphQL = require("./Services/GraphQL");
 const serializer = require("./Services/Serializer");
@@ -194,6 +196,7 @@ module.exports = class Client {
     };
 
     const res = await graphQL.request(endpoint, mutation, variables);
+    console.log("DISPATCH", res.dispatchWorkflow);
     return res.dispatchWorkflow;
   }
 
@@ -287,7 +290,7 @@ module.exports = class Client {
    */
   async findWorkflow(workflowName, customId) {
     const endpoint = this.getGatewayUrl();
-    const query = graphQL.queries.workflow;
+    const query = graphQL.queries.findWorkflow;
     const variables = {
       customId,
       environmentName: credentials.appEnv,
@@ -295,8 +298,19 @@ module.exports = class Client {
       programmingLanguage: PROG.toUpperCase(),
     };
 
-    const res = await graphQL.request(endpoint, query, variables);
-    return res.data;
+    try {
+      const res = await graphQL.request(endpoint, query, variables);
+      return serializer.decode(res.findWorkflow.properties);
+    } catch (e) {
+      if (e.response && e.response.errors) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const el of e.response.errors) {
+          if (el.type === "NOT_FOUND") return null;
+        }
+      }
+
+      throw e;
+    }
   }
 
   /**
@@ -324,6 +338,7 @@ module.exports = class Client {
       },
     };
     const res = await graphQL.request(endpoint, mutation, variables);
+    console.log("SEND EVENT", res.sendEventToWorkflowByNameAndCustomId);
     return res.sendEventToWorkflowByNameAndCustomId;
   }
 

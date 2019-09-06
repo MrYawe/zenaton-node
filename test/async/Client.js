@@ -29,7 +29,6 @@ describe("Client", () => {
 
     sinon.stub(http, "post").resolves();
     sinon.stub(http, "put").resolves();
-    sinon.stub(graphQL, "request").resolves({});
 
     sinon.stub(serializer, "encode").returns(FAKE_ENCODED_DATA);
   });
@@ -52,6 +51,7 @@ describe("Client", () => {
 
   it("should call the agent to start a workflow", async () => {
     // Arranges
+    sinon.stub(graphQL, "request").resolves({});
 
     const workflow = {
       id: () => "FAKE CUSTOM ID",
@@ -91,6 +91,8 @@ describe("Client", () => {
   });
 
   it("should call the agent to schedule a workflow", async () => {
+    sinon.stub(graphQL, "request").resolves({});
+
     // Arrange
     const workflow = {
       id: () => "FAKE CUSTOM ID",
@@ -133,6 +135,7 @@ describe("Client", () => {
   });
 
   it("should call the agent to start a task", async () => {
+    sinon.stub(graphQL, "request").resolves({});
     // Arrange
     const task = {
       name: "TaskName",
@@ -169,6 +172,8 @@ describe("Client", () => {
   });
 
   it("should call the agent to schedule a task", async () => {
+    sinon.stub(graphQL, "request").resolves({});
+
     // Arrange
     const task = {
       name: "TaskName",
@@ -208,6 +213,8 @@ describe("Client", () => {
   });
 
   it("should kill a workflow", async () => {
+    sinon.stub(graphQL, "request").resolves({});
+
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";
@@ -236,6 +243,8 @@ describe("Client", () => {
   });
 
   it("should pause a workflow", async () => {
+    sinon.stub(graphQL, "request").resolves({});
+
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";
@@ -264,6 +273,8 @@ describe("Client", () => {
   });
 
   it("should resume a workflow", async () => {
+    sinon.stub(graphQL, "request").resolves({});
+
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";
@@ -297,18 +308,23 @@ describe("Client", () => {
     const customId = "45745c60";
     const fakeFoundWorkflow = {};
     sinon.stub(workflowManager, "getWorkflow").returns(fakeFoundWorkflow);
+    sinon.stub(graphQL, "request").resolves({
+      findWorkflow: {
+        properties: '{"v":"1.0.0","s":[],"d":null}',
+      },
+    });
 
     // Act
     Client.init(FAKE_APP_ID, FAKE_API_TOKEN, FAKE_APP_ENV);
     const client = new Client();
     const result = client.findWorkflow(workflowName, customId);
-    console.log("RESULT", result);
+
     // Assert
     await expect(result).to.eventually.be.fulfilled();
 
     expect(graphQL.request).to.have.been.calledWithExactly(
       "https://gateway.zenaton.com/api",
-      graphQL.queries.workflow,
+      graphQL.queries.findWorkflow,
       {
         customId: "45745c60",
         environmentName: "prod",
@@ -319,6 +335,8 @@ describe("Client", () => {
   });
 
   it("should send an event to a workflow", async () => {
+    sinon.stub(graphQL, "request").resolves({});
+
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";

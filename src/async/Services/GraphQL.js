@@ -16,20 +16,23 @@ function getError(err) {
         return `${path}${errorMessage}`;
       })
       .join("\n");
-    return new ExternalZenatonError(message);
+
+    return ["ExternalZenatonError", message];
   }
 
   // Internal Server Error
   if (err.response && err.response.status >= 500) {
-    return new InternalZenatonError(
+    return [
+      "InternalZenatonError",
       `Please contact Zenaton support - ${err.message}`,
-    );
+    ];
   }
 
-  return new ZenatonError(err.message);
+  return ["ZenatonError", err.message];
 }
 
 async function request(endpoint, query, variables) {
+  console.log("IN REQUEST");
   try {
     const graphQLClient = new GraphQLClient(endpoint, {
       headers: {
@@ -39,10 +42,20 @@ async function request(endpoint, query, variables) {
         "api-token": credentials.apiToken,
       },
     });
-
-    return graphQLClient.request(query, variables);
+    console.log("IN TRY");
+    const res = await graphQLClient.request(query, variables);
+    return res;
   } catch (err) {
-    throw getError(err);
+    const [exception, message] = getError(err);
+
+    switch (exception) {
+      case "ExternalZenatonError":
+        throw new ExternalZenatonError(message);
+      case "InternalZenatonError":
+        throw new InternalZenatonError(message);
+      default:
+        throw new ZenatonError(message);
+    }
   }
 }
 
@@ -149,9 +162,9 @@ const mutations = {
 };
 
 const queries = {
-  workflow: `
-    query workflow($workflowName: String, $customId: ID, $environmentName: String, $programmingLanguage: String) {
-      workflow(environmentName: $environmentName, programmingLanguage: $programmingLanguage, customId: $customId, name: $workflowName) {
+  findWorkflow: `
+    query findWorkflow($workflowName: String, $customId: ID, $environmentName: String, $programmingLanguage: String) {
+      findWorkflow(environmentName: $environmentName, programmingLanguage: $programmingLanguage, customId: $customId, name: $workflowName) {
         name
         properties
       }
