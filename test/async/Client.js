@@ -31,6 +31,7 @@ describe("Client", () => {
     sinon.stub(http, "put").resolves();
 
     sinon.stub(serializer, "encode").returns(FAKE_ENCODED_DATA);
+    sinon.stub(serializer, "decode").returns(true);
   });
 
   it("should expose a static 'init' method", () => {
@@ -302,7 +303,7 @@ describe("Client", () => {
     );
   });
 
-  it("should find a workflow", async () => {
+  it.only("should find a workflow", async () => {
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";
@@ -310,7 +311,7 @@ describe("Client", () => {
     sinon.stub(workflowManager, "getWorkflow").returns(fakeFoundWorkflow);
     sinon.stub(graphQL, "request").resolves({
       findWorkflow: {
-        properties: '{"v":"1.0.0","s":[],"d":null}',
+        properties: "FAKE PROPERTIES",
       },
     });
 
