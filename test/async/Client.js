@@ -303,7 +303,7 @@ describe("Client", () => {
     );
   });
 
-  it.only("should find a workflow", async () => {
+  it("should find a workflow", async () => {
     // Arrange
     const workflowName = "CanonicalWorkflowName";
     const customId = "45745c60";
