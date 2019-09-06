@@ -32,7 +32,6 @@ function getError(err) {
 }
 
 async function request(endpoint, query, variables) {
-  console.log("IN REQUEST");
   try {
     const graphQLClient = new GraphQLClient(endpoint, {
       headers: {
@@ -42,7 +41,6 @@ async function request(endpoint, query, variables) {
         "api-token": credentials.apiToken,
       },
     });
-    console.log("IN TRY");
     const res = await graphQLClient.request(query, variables);
     return res;
   } catch (err) {
