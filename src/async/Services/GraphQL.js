@@ -9,6 +9,11 @@ const { credentials } = require("../../client");
 function getError(err) {
   // Validation errors
   if (err.response && err.response.errors && err.response.errors.length > 0) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const el of err.response.errors) {
+      if (el.type === "NOT_FOUND") return ["NOT_FOUND", err.response.data];
+    }
+
     const message = err.response.errors
       .map((graphqlError) => {
         const path = graphqlError.path ? `(${graphqlError.path}) ` : "";
@@ -44,9 +49,11 @@ async function request(endpoint, query, variables) {
     const res = await graphQLClient.request(query, variables);
     return res;
   } catch (err) {
-    const [exception, message] = getError(err);
+    const [error, message] = getError(err);
 
-    switch (exception) {
+    switch (error) {
+      case "NOT_FOUND":
+        return message;
       case "ExternalZenatonError":
         throw new ExternalZenatonError(message);
       case "InternalZenatonError":

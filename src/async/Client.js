@@ -196,7 +196,6 @@ module.exports = class Client {
     };
 
     const res = await graphQL.request(endpoint, mutation, variables);
-    console.log("DISPATCH", res.dispatchWorkflow);
     return res.dispatchWorkflow;
   }
 
@@ -298,19 +297,11 @@ module.exports = class Client {
       programmingLanguage: PROG.toUpperCase(),
     };
 
-    try {
-      const res = await graphQL.request(endpoint, query, variables);
-      return serializer.decode(res.findWorkflow.properties);
-    } catch (e) {
-      if (e.response && e.response.errors) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const el of e.response.errors) {
-          if (el.type === "NOT_FOUND") return null;
-        }
-      }
+    const res = await graphQL.request(endpoint, query, variables);
 
-      throw e;
-    }
+    return res.findWorkflow
+      ? serializer.decode(res.findWorkflow.properties)
+      : null;
   }
 
   /**
@@ -338,7 +329,6 @@ module.exports = class Client {
       },
     };
     const res = await graphQL.request(endpoint, mutation, variables);
-    console.log("SEND EVENT", res.sendEventToWorkflowByNameAndCustomId);
     return res.sendEventToWorkflowByNameAndCustomId;
   }
 
